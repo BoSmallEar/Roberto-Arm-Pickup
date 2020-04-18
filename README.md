@@ -1,40 +1,43 @@
 # Roberto IK Planner
 
-## Relevant Files
-- /scripts/ik_planner.py: Ros node that handles main driver. Receives goal poses on topic `pose_goals` and moves end effector to that pose. Currently only capable of moving arm, not gripper.
-- /scripts/pickup.py: Test script to pick up objects using gripper. Currently does not work.
-- /scripts/ik_planner.py: ros node. Receives goal poses on topic `pose_goals` and moves end effector to that pose. Currently only capable of moving arm, not gripper.
-
-
 ## Instructions to Run
 1. Clone the repository into the src directory of your catkin workspace.
+2. Make sure the `tiago_gazebo` directory is in the catkin workspace (it comes with the tiago installation).
 2.  Build catkin using either `catkin build roberto_ik_planner` or `catkin_make` (not sure if the second will work).
 3. Open the robot in gazebo with 
 
     ```
-    $ roslaunch roberto_ik_planner roberto_ik_plan.launch
+    $ roslaunch roberto_ik_planner pick_simulation.launch
     ```
     
-    This will launch the gazebo server using the launch file in `/launch`. It contains the robot in an empty world, and opens the gazebo client and RViz for visualization as well. If you just want the server without gazebo or RViz (e.g. for debugging), use roberto_server_only.launch instead.
-4. In a new terminal, run the driver node using
+    This will launch the gazebo server using the launch file in `/launch`. It contains the robot with a small block in front of it.
+4. In a new terminal, run the pickup client node using
     ```
-    $ rosrun roberto_ik_planner ik_planner.py
-    ```
-
-    This will start the `ik_planner.py` script as a ros node.
-
-5. Send a goal to `ik_planner.py` using
-    ```
-    $ rosrun roberto_ik_planner talker.py 0.4 -0.3 0.26 0 0 0
+    $ roslaunch roberto_ik_planner pick_demo.launch
     ```
 
-    in a new terminal. The talker will construct a `Pose` object from the command-line arguments (first three are xyz position, last three are roll-pitch-yaw orientation) and broadcast it on the `pose_goals` topic that `ik_planner.py` is subscribed to. You should see "goal received" in the terminal window where `ik_planner.py` is running. The robot will then plan how to move the arm to that given pose and broadcast it on the `/move_group/display_planned_path` topic for RViz to visualize, before actually carrying out the motion.
+    This starts the pick and place server, which handles the actual pickup requests, and the pickup client, which handles receiving the goals on a ros topic and processing it before sending it to the pickup server.
 
-6. If the path does not come up in RViz, you may have to click on "Add" on the left hand panel and click on "Motion Planning" (this sometimes works and sometimes doesn't, not sure why yet).
+5. Send a goal to the client using
+    ```
+    $ rosrun roberto_ik_planner talker.py
+    ```
+
+    in a new terminal. The talker will construct a `PoseStamped` object (currently hardcoded to the position of the object in the world) and broadcast it on the `pick_goals` topic that `pickup.py` is subscribed to. You should see "Goal received" in the terminal window where step 4 was executed. The robot will then plan a grasp to that object and attempt to pick it up. In RViz, you should see the possible grasps show up as a vector field around the object.
+
+
+## Relevant Files
+- /scripts/ik_planner.py: Ros node that handles main driver for just IK movement of end effector. Receives goal poses on topic `pose_goals` and moves end effector to that pose.
+- /scripts/pickup.py: Main client of picking up objects with grasp capability. Recieves goals on topic `pick_goals` and picks up the object at that position.
+- /scripts/spherical_grasps_server.py: Generates possible grasps for a given pose, used by pick and place server. Copied from tiago pick and place tutorial.
+- /scripts/pick_and_place_server.py: Server for pick and place motions. Given a pose, generates possible grasps and executes the best grasp. Copied from tiago pick and place tutorial.
+- /scripts/talker.py: Sends pickup goal to pickup client on `pick_goals` as a PoseStamped object.
+
 
 ## TODOs
-- Figure out how to manipulate the gripper. Currently following the [Tiago pick and place tutorial](http://wiki.ros.org/Robots/TIAGo/Tutorials/MoveIt/Pick_place), but that uses a lot of things we don't need like object detection with OpenCV, so I need to figure out what components I can remove and how to adapt the remainder for our purpose.
-- Create a world with objects in it that we can try picking up.
+- Ensure this still works if the robot is not at the origin but has moved somewhere else. In theory I think the code should work fine, as long as the pose of the object is correct. If the object pose is in the robot frame, we will need to convert it to the world frame.
+- Try picking up multiple objects?
+- Haven't tried placing objects yet
 
 ## Useful links
 [Tiago tutorials](http://wiki.ros.org/Robots/TIAGo/Tutorials/MoveIt/Pick_place)

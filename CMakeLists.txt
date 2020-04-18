@@ -10,11 +10,30 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   geometry_msgs
   std_msgs
+  std_srvs
+  moveit_msgs
+  dynamic_reconfigure
+  actionlib
+  actionlib_msgs
+  aruco_ros
+)
+
+generate_dynamic_reconfigure_options(
+  cfg/SphericalGrasp.cfg
+  )
+
+add_action_files(
+  FILES
+  PickUpPose.action
+)
+
+generate_messages(
+  DEPENDENCIES
+  actionlib_msgs geometry_msgs
 )
 
 catkin_package(
 )
-
 
 include_directories(
   SYSTEM
@@ -36,6 +55,7 @@ target_link_libraries(plan_arm_torso_ik
    ${catkin_LIBRARIES}
  )
 
+
 install(TARGETS plan_arm_torso_fk plan_arm_torso_ik
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
@@ -46,6 +66,9 @@ install(
       scripts/listener.py 
       scripts/talker.py 
       scripts/pickup.py
+      scripts/pick_and_place_server.py
+      scripts/pick_client.py
+      scripts/spherical_grasps_server.py
   DESTINATION 
       ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
