@@ -12,7 +12,7 @@
   <include file="$(find tiago_gazebo)/launch/tiago_gazebo.launch">
     <arg name="robot"      value="$(arg robot)"/>
     <arg name="public_sim" value="$(arg public_sim)"/>
-    <arg name="world"      value="tabletop_cube"/>
+    <arg name="world"      value="$(find roberto_ik_planner)/worlds/single_cube.world"/>
     <arg name="gui"      value="$(arg gzclient)"/>
     <arg name="recording" value="$(arg recording)"/>
   </include>
