@@ -52,12 +52,10 @@ for name in MoveItErrorCodes.__dict__.keys():
 
 class PickupHandler(object):
     def __init__(self):
-        '''Start the action client services and initialize publishers.'''
-
         # maximum height of the torso
-        self.HEIGHT_MAX = 0.35
+        self.HEIGHT_MAX = rospy.get_param('~torso_height_limit')
 
-
+        '''Start the action client services and initialize publishers.'''
         rospy.loginfo("Initalizing...")
         self.bridge = CvBridge()
         self.tfBuffer = tf2_ros.Buffer()
@@ -92,7 +90,7 @@ class PickupHandler(object):
         rospy.loginfo("Done initializing PickupHandler.")
     
 
-    def lift_torso(self, height=self.HEIGHT_MAX):
+    def lift_torso(self, height=0.0):
         '''
         Move the torso to the desired height.
 
@@ -219,7 +217,7 @@ if __name__ == '__main__':
 
     # Create pickup handler and begin listening for a new goal
     picker = PickupHandler()
-    rospy.Subscriber("pick_goals", PoseStamped, picker.pick_aruco)
+    rospy.Subscriber('pick_goals', PoseStamped, picker.pickup)
     rospy.loginfo('Waiting for pick goal...')
 
     rospy.spin()

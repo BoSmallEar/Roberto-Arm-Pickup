@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   actionlib
   actionlib_msgs
-  aruco_ros
 )
 
 generate_dynamic_reconfigure_options(
@@ -67,7 +66,6 @@ install(
       scripts/talker.py 
       scripts/pickup.py
       scripts/pick_and_place_server.py
-      scripts/pick_client.py
       scripts/spherical_grasps_server.py
   DESTINATION 
       ${CATKIN_PACKAGE_BIN_DESTINATION}

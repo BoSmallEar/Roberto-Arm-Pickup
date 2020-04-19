@@ -2,18 +2,6 @@
 <launch>
 
   <arg name="rviz"  default="true"/>
-  <!-- marker detector -->
-  <node pkg="aruco_ros" type="single"  name="aruco_single">
-      <remap from="/camera_info"       to="/xtion/rgb/camera_info" />
-      <remap from="/image"             to="/xtion/rgb/image_rect_color" />
-      <param name="image_is_rectified" value="True"/>
-      <param name="marker_size"        value="0.045"/>
-      <param name="marker_id"          value="582"/>
-      <param name="reference_frame"    value="/base_footprint"/>   <!-- frame in which the marker pose will be expressed -->
-      <param name="camera_frame"       value="xtion_rgb_optical_frame"/>
-      <param name="marker_frame"       value="aruco_frame" />
-      <param name="corner_refinement"  value="SUBPIX" />
-  </node>
 
   <!-- Load definition of pregrasp motion into play_motion namespace -->
   <rosparam command="load" file="$(find roberto_ik_planner)/config/pick_motions.yaml" /> 
@@ -27,10 +15,12 @@
   </node>
 
   <!-- Node exposing service to start looking for the object and trigger the picking -->
-  <node name="pick_client" pkg="roberto_ik_planner" type="pick_client.py" output="screen"/>  
+  <node name="pick_client" pkg="roberto_ik_planner" type="pickup.py" output="screen">
+      <param name="torso_height_limit" value="0.35" />
+  </node>  
 
-  <group if="$(arg rviz)">
+  <!-- <group if="$(arg rviz)">
       <node name="pick_demo_rviz" pkg="rviz" type="rviz" args="-d $(find roberto_ik_planner)/config/rviz/tiago_pick_demo.rviz" />
-  </group>
+  </group> -->
 
 </launch>
