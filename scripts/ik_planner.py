@@ -52,7 +52,7 @@ class Planner:
 			goal = self.goals.pop(0)
 			self.group.set_pose_target(goal)
 			plan = self.group.plan()
- 
+
 			# visualize path in rviz
 			rospy.loginfo('Visualizing in RViz...')
 			display_trajectory = moveit_msgs.msg.DisplayTrajectory()

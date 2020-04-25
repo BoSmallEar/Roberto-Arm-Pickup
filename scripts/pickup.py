@@ -40,6 +40,8 @@ from std_srvs.srv import Empty
 import cv2
 from cv_bridge import CvBridge
 
+import moveit_commander
+import moveit_msgs.msg
 from moveit_msgs.msg import MoveItErrorCodes
 
 
@@ -86,6 +88,16 @@ class PickupHandler(object):
             exit()
         rospy.loginfo("Connected!")
 
+
+        # Connect to MoveIt Commander
+        self.robot = moveit_commander.RobotCommander()
+        self.scene = moveit_commander.PlanningSceneInterface()
+        self.group = moveit_commander.MoveGroupCommander('arm_torso')
+        self.display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
+                                                moveit_msgs.msg.DisplayTrajectory, queue_size=10)
+        self.eef_link = self.group.get_end_effector_link()
+        self.goals = []
+        
         rospy.sleep(1.0)
         rospy.loginfo("Done initializing PickupHandler.")
     
@@ -185,6 +197,45 @@ class PickupHandler(object):
         self.lift_torso(height=0.2)
         # self.move_arm_to_final() # pick_final_pose causes object to fall
 
+    def place(self, goal_pose):
+        # Remove leading slash from frame id
+        goal_pose.header.frame_id = self.strip_leading_slash(goal_pose.header.frame_id)
+        rospy.loginfo("Goal received:\n" + str(goal_pose))
+
+        # Create and initialize pickup goal with position from goal pose
+        pick_g = PickUpPoseGoal()
+        pick_g.object_pose.pose.position = goal_pose.pose.position
+
+        # rospy.loginfo("goal pose in base_footprint:" + str(pick_g))
+        pick_g.object_pose.header.frame_id = 'base_footprint'
+        pick_g.object_pose.pose.orientation.w = 1.0
+        
+        rospy.loginfo("Placing object at goal pose")
+        self.place_as.send_goal_and_wait(pick_g)
+
+        # # get goal and plan path
+        # rospy.loginfo('Planning path to new goal...')
+        # self.group.set_pose_target(goal_pose)
+        # plan = self.group.plan()
+
+        # # # visualize path in rviz
+        # # rospy.loginfo('Visualizing in RViz...')
+        # # display_trajectory = moveit_msgs.msg.DisplayTrajectory()
+        # # display_trajectory.trajectory_start = self.robot.get_current_state()
+        # # display_trajectory.trajectory.append(plan)
+        # # self.display_trajectory_publisher.publish(display_trajectory)
+        # # rospy.sleep(2) # allow time for visualization
+
+        # # perform movement
+        # self.group.go(wait=True)
+
+        # print('Path planning and movement successful!')
+
+        # # clear current goal
+        # self.group.stop()
+        # self.group.clear_pose_targets()
+
+
 
     def prepare_robot(self):
         '''Prepare the robot for picking up an object.'''
@@ -218,6 +269,7 @@ if __name__ == '__main__':
     # Create pickup handler and begin listening for a new goal
     picker = PickupHandler()
     rospy.Subscriber('pick_goals', PoseStamped, picker.pickup)
+    rospy.Subscriber('place_goals', PoseStamped, picker.place)
     rospy.loginfo('Waiting for pick goal...')
 
     rospy.spin()

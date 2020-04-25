@@ -26,6 +26,14 @@
     in a new terminal. The talker will construct a `PoseStamped` object (currently hardcoded to the position of the object in the world) and broadcast it on the `pick_goals` topic that `pickup.py` is subscribed to. You should see "Goal received" in the terminal window where step 4 was executed. The robot will then plan a grasp to that object and attempt to pick it up. In RViz, you should see the possible grasps show up as a vector field around the object.
 
 
+5. Place the object somewhere using
+    ```
+    $ rosrun roberto_ik_planner publish_place.py
+    ```
+
+    once the robot has successfully picked up the object. ```publish_place.py``` publishes a PoseStamped object which is the pose of the desired location to drop the object. Once the arm moves to the correct location, the gripper opens and the object should fall out. 
+
+
 ## Relevant Files
 - /scripts/ik_planner.py: Ros node that handles main driver for just IK movement of end effector. Receives goal poses on topic `pose_goals` and moves end effector to that pose.
 - /scripts/pickup.py: Main client of picking up objects with grasp capability. Recieves goals on topic `pick_goals` and picks up the object at that position.

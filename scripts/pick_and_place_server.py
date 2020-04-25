@@ -204,7 +204,7 @@ class PickAndPlaceServer(object):
                 table_pose.pose.position.z += -(2*self.object_width)/2 -table_height/2
                 table_height -= 0.008 #remove few milimeters to prevent contact between the object and the table
 
-		self.scene.add_box("table", table_pose, (table_depth, table_width, table_height))
+		# self.scene.add_box("table", table_pose, (table_depth, table_width, table_height))
 
 		# # We need to wait for the object part to appear
 		self.wait_for_planning_scene_object()
