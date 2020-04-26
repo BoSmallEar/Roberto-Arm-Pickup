@@ -198,25 +198,9 @@ class PickupHandler(object):
         # self.move_arm_to_final() # pick_final_pose causes object to fall
 
     def place(self, goal_pose):
-
-
-        self.open_gripper()
-        # # Remove leading slash from frame id
-        # goal_pose.header.frame_id = self.strip_leading_slash(goal_pose.header.frame_id)
-        # rospy.loginfo("Goal received:\n" + str(goal_pose))
-
-        # # Create and initialize pickup goal with position from goal pose
-        # pick_g = PickUpPoseGoal()
-        # pick_g.object_pose.pose.position = goal_pose.pose.position
-
-        # # rospy.loginfo("goal pose in base_footprint:" + str(pick_g))
-        # pick_g.object_pose.header.frame_id = 'base_footprint'
-        # pick_g.object_pose.pose.orientation.w = 1.0
         
-        # rospy.loginfo("Placing object at goal pose")
-        # self.place_as.send_goal_and_wait(pick_g)
-
-        # # get goal and plan path
+        # move arm to desired pose
+        # get goal and plan path
         # rospy.loginfo('Planning path to new goal...')
         # self.group.set_pose_target(goal_pose)
         # plan = self.group.plan()
@@ -237,6 +221,25 @@ class PickupHandler(object):
         # # clear current goal
         # self.group.stop()
         # self.group.clear_pose_targets()
+
+        # open gripper so object falls out
+        # self.open_gripper()
+
+        # Remove leading slash from frame id
+        goal_pose.header.frame_id = self.strip_leading_slash(goal_pose.header.frame_id)
+        rospy.loginfo("Goal received:\n" + str(goal_pose))
+
+        # Create and initialize pickup goal with position from goal pose
+        pick_g = PickUpPoseGoal()
+        pick_g.object_pose.pose.position = goal_pose.pose.position
+
+        # rospy.loginfo("goal pose in base_footprint:" + str(pick_g))
+        pick_g.object_pose.header.frame_id = 'base_footprint'
+        pick_g.object_pose.pose.orientation.w = 1.0
+        
+        rospy.loginfo("Placing object at goal pose")
+        self.place_as.send_goal_and_wait(pick_g)
+
 
 
 
