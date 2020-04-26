@@ -198,20 +198,23 @@ class PickupHandler(object):
         # self.move_arm_to_final() # pick_final_pose causes object to fall
 
     def place(self, goal_pose):
-        # Remove leading slash from frame id
-        goal_pose.header.frame_id = self.strip_leading_slash(goal_pose.header.frame_id)
-        rospy.loginfo("Goal received:\n" + str(goal_pose))
 
-        # Create and initialize pickup goal with position from goal pose
-        pick_g = PickUpPoseGoal()
-        pick_g.object_pose.pose.position = goal_pose.pose.position
 
-        # rospy.loginfo("goal pose in base_footprint:" + str(pick_g))
-        pick_g.object_pose.header.frame_id = 'base_footprint'
-        pick_g.object_pose.pose.orientation.w = 1.0
+        self.open_gripper()
+        # # Remove leading slash from frame id
+        # goal_pose.header.frame_id = self.strip_leading_slash(goal_pose.header.frame_id)
+        # rospy.loginfo("Goal received:\n" + str(goal_pose))
+
+        # # Create and initialize pickup goal with position from goal pose
+        # pick_g = PickUpPoseGoal()
+        # pick_g.object_pose.pose.position = goal_pose.pose.position
+
+        # # rospy.loginfo("goal pose in base_footprint:" + str(pick_g))
+        # pick_g.object_pose.header.frame_id = 'base_footprint'
+        # pick_g.object_pose.pose.orientation.w = 1.0
         
-        rospy.loginfo("Placing object at goal pose")
-        self.place_as.send_goal_and_wait(pick_g)
+        # rospy.loginfo("Placing object at goal pose")
+        # self.place_as.send_goal_and_wait(pick_g)
 
         # # get goal and plan path
         # rospy.loginfo('Planning path to new goal...')
@@ -257,6 +260,20 @@ class PickupHandler(object):
         pmg.skip_planning = False
         self.play_m_as.send_goal_and_wait(pmg)
         rospy.loginfo("Done unfolding arm.")
+
+
+    def open_gripper(self):
+        '''
+        Opens the gripper.
+
+        The configuration is given somewhere in tiago_gazebo...
+        '''
+        rospy.loginfo('Opening gripper')
+        pmg = PlayMotionGoal()
+        pmg.motion_name = 'open'
+        pmg.skip_planning = False
+        self.play_m_as.send_goal_and_wait(pmg)
+        rospy.loginfo('Done opening gripper')
 
 
     def strip_leading_slash(self, s):

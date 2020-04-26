@@ -208,7 +208,7 @@ class PickAndPlaceServer(object):
 
 		# # We need to wait for the object part to appear
 		self.wait_for_planning_scene_object()
-		self.wait_for_planning_scene_object("table")
+		# self.wait_for_planning_scene_object("table")
 
                 # compute grasps
 		possible_grasps = self.sg.create_grasps_from_object_pose(object_pose)
